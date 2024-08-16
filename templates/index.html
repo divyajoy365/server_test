@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Raspberry Pi Sensor Data and Video Stream</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const socket = io();
+
+            // Handle new video frames
+            // this updates the html with the new video frame that is sent through by the server
+            socket.on('new_frame', (data) => {
+                const frameImg = document.getElementById('frame');
+                frameImg.src = 'data:image/jpeg;base64,' + data.frame;
+            });
+
+            // Handle sensor data updates - this listens for a sensor_update
+            // it then updates the html below where the temp and humidity is
+            socket.on('sensor_update', (data) => {
+                document.getElementById('temperature').textContent = data.temperature + ' °C';
+                document.getElementById('humidity').textContent = data.humidity + ' %';
+            });
+
+            // this sends a request to the server to send through a frame
+            socket.emit('request_frame');
+        });
+    </script>
+</head>
+<body>
+    <h1>Raspberry Pi Sensor Data and Video Stream</h1>
+    <img id="frame" src="" alt="Video Stream" width="640" height="480">
+    <h2>Sensor Data:</h2>
+    <p>Temperature: <span id="temperature">--</span></p>
+    <p>Humidity: <span id="humidity">--</span></p>
+</body>
+</html>
